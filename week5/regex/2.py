@@ -14,6 +14,7 @@ print(aandbmatches("abbb"))#m
 print(aandbmatches("abc"))#nm
 print(aandbmatches("acc"))#nm
 print(aandbmatches("abb"))#m
+print(aandbmatches("rainbow"))#nm
 '''
 {}Exactly the specified number of occurrences of b
 '''
