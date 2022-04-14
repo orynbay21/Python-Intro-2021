@@ -1,54 +1,20 @@
 import pygame
 pygame.init()
-window_width,window_height=700,500
-fps=60
-draw=False
-white=(255,255,255)
-black=(0,0,0)
-red=(255,0,0)
-blue=(0,255,0)
-green=(0,0,255)
+black,white,yellow,red,blue,green=(0,0,0),(255,255,255),(255,255,0),(255,0,0),(0,0,255),(0,255,0)
+screen = pygame.display.set_mode((500,500))
+clock = pygame.time.Clock()
+game_over = False
+prev, cur = None, None
 mode='pen'
 color=black
-thickness=5#default radius for the circle and thickness for other modes
-screen = pygame.display.set_mode((window_width,window_height))
-pygame.display.set_caption("Aruka's Paint")
-clock = pygame.time.Clock()
+thickness=5
 screen.fill(white)
-running=True
-
-def drawline(screen, start, end, thickness, color):
-    x1,y1= start[0],start[1]
-    x2,y2 = end[0],end[1]
-    dx = abs(x1 - x2)
-    dy = abs(y1 - y2)
-    A = y2 - y1
-    B = x1 - x2
-    C = x2 * y1 - x1 * y2
-    if dx > dy:
-        if x1 > x2:
-            x1, x2 = x2, x1
-            y1, y2 = y2, y1 
-        for x in range(x1, x2):
-            y = (-C - A * x) / B
-            pygame.draw.circle(screen, pygame.Color(color), (x, y), thickness)
-    else:
-        if y1 > y2:
-            x1, x2 = x2, x1
-            y1, y2 = y2, y1
-        for y in range(y1, y2):
-            x = (-C - B * y) / A
-            pygame.draw.circle(screen, pygame.Color(color), (x, y), thickness)
-#start=PreviousPos which is the MOUSEBUTTONDOWN
-#end=event.pos which is the MOUSEBUTTONUP
 def drawRectangle(screen, start, end, thickness, color):
     x1,y1= start[0],start[1]
     x2,y2 = end[0],end[1]
     width = abs(x1-x2)
     height = abs(y1-y2)
-    pygame.draw.rect(screen, pygame.Color(color), (x1, y1, width, height), thickness)
-
-
+    pygame.draw.rect(screen, color, (x1, y1, width, height), thickness)
 def drawCircle(screen, start, end, thickness, color):
     x1,y1= start[0],start[1]
     x2,y2 = end[0],end[1]
@@ -57,11 +23,14 @@ def drawCircle(screen, start, end, thickness, color):
     #x and y here are the center of the circle
     radius = abs(x1 - x2) / 2
     pygame.draw.circle(screen, pygame.Color(color), (x, y), radius, thickness)
-while running:
-    for event in pygame.event.get():
+while not game_over:
+  for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+      game_over = True
+    if event.type == pygame.KEYDOWN:
         if event.type == pygame.QUIT:
             exit()
-        if event.type == pygame.KEYDOWN:
+        if event.type== pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 mode='rectangle'
             if event.key == pygame.K_2:
@@ -77,10 +46,19 @@ while running:
                 color =black
             if event.key == pygame.K_r:
                 color =red
+    if mode=='pen':       
+      if event.type == pygame.MOUSEBUTTONDOWN:
+        prev = pygame.mouse.get_pos()
+      if event.type == pygame.MOUSEMOTION:
+        cur = pygame.mouse.get_pos()
+        if prev:
+          pygame.draw.line(screen, color, prev, cur, thickness)
+          prev = cur
+      if event.type == pygame.MOUSEBUTTONUP:
+        prev = None
+    else:
         if event.type==pygame.MOUSEBUTTONDOWN:
             draw=True
-            if mode=='circle':
-                pygame.draw.circle(screen,color,event.pos,thickness)
             previousPos=event.pos
         if event.type==pygame.MOUSEBUTTONUP:
             if mode=='rectangle':
@@ -89,13 +67,12 @@ while running:
                 drawCircle(screen,previousPos,event.pos,thickness,color)
             else:
                 draw=False
-        if event.type == pygame.MOUSEMOTION:
-            if draw and mode == 'pen':
-                drawline(screen, lastPos, event.pos, thickness, color)
-            elif draw and mode == 'erase':
-                drawline(screen, lastPos, event.pos, thickness, 'white')
-            lastPos = event.pos
-    pygame.draw.rect(screen, pygame.Color('white'), (5, 5, 100, 100))
-    pygame.display.flip()
-    clock.tick(fps)
+        if event.type == pygame.MOUSEBUTTONUP:
+            previousPos = None
+  pygame.display.flip()
+  clock.tick(60) # 60 is the normal fps
+pygame.quit()
+'''
+pygame.mouse.get_pos() returns a Tuple and event.pos is a Tuple. Both give you the position of the mouse pointer as a tuple with 2 components
 
+'''

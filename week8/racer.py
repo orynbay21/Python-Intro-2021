@@ -4,8 +4,7 @@ FPS = 60
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 STEP = 5
-ENEMTY_STEP = 10
-WHITE = (255, 255, 255)
+ENEMY_STEP = 10
 BLACK = (0, 0, 0)
 SCORE  = 0
 SURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # установление экрана
@@ -26,11 +25,12 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         global SCORE
-        self.rect.move_ip(0, ENEMTY_STEP)
+        self.rect.move_ip(0, ENEMY_STEP)
         if(self.rect.bottom > SCREEN_HEIGHT):
             SCORE += 1 # если энеми проехал всю высоту экрана, это плюс к скору
             self.top = 0
             self.rect.center = (random.randint(30, 350), 0)
+            #генерирование новой позиции для машины
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
@@ -43,7 +43,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (160, 520)
 
     def update(self):
-        pressed_keys = pygame.key.get_pressed()
+        pressed_keys = pygame.key.get_pressed() #get the state of all keyboard buttons
+        #the first if statements of each of the 2 following blocks of code
+        #is so that the player wouldn't leave the playing area we display in the pygame window
         if self.rect.left > 0:
             if pressed_keys[pygame.K_LEFT]:
                 self.rect.move_ip(-STEP, 0)
