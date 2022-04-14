@@ -1,5 +1,3 @@
-#DIFFERENT COIN WEIGHTS
-#NEED TO ADD SPEED WHEN REACHING N COINS
 import random, sys,pygame
 pygame.init()
 FPS = 60
@@ -14,10 +12,9 @@ SURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # установл
 pygame.display.set_caption("Aruka's racer game") #название экрана
 clock = pygame.time.Clock()
 global NUM_OF_COINS
-NUM_OF_COINS=0
+NUM_OF_COINS = 0
 score_font = pygame.font.SysFont("Verdana", 20) #шрифт для счетчиков
 bg = pygame.image.load("AnimatedStreet.png") #background
-
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -25,6 +22,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load("Enemy.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0) 
+        #положение энеми по иксу задается рандомно учитывая ширину машинки
     def update(self):
         global SCORE,ENEMY_STEP
         self.rect.move_ip(0, ENEMY_STEP)
@@ -32,14 +30,18 @@ class Enemy(pygame.sprite.Sprite):
             SCORE += 1 # если энеми проехал всю высоту экрана, это плюс к скору
             self.top = 0
             self.rect.center = (random.randint(30, 350), 0)
+            #setting the new position after enemy passes the player
     def draw(self, surface):
         surface.blit(self.image, self.rect)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Player.png")
         self.rect = self.image.get_rect()
         self.rect.center = (160, 520)
+        #the player always spawns on one position
+
     def update(self):
         pressed_keys = pygame.key.get_pressed()
         if self.rect.left > 0:
@@ -57,6 +59,7 @@ class Coin(pygame.sprite.Sprite):
         super().__init__()
         self.image=pygame.image.load('goldcoin.png')
         self.image=pygame.transform.scale(self.image,(25,25))
+        #задаем определенный размер картинке монетки
         self.rect=self.image.get_rect()
         self.rect.center=(random.randint(40,SCREEN_WIDTH-40),0)
     def update(self):
@@ -68,6 +71,7 @@ class Coin(pygame.sprite.Sprite):
         self.rect.center=(random.randint(30,350),0)
     def draw(self,surface):
         surface.blit(self.image,self.rect)
+
 class BIGCoin(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -84,6 +88,7 @@ class BIGCoin(pygame.sprite.Sprite):
         self.rect.center=(random.randint(30,350),0)
     def draw(self,surface):
         surface.blit(self.image,self.rect)
+
 class Treasure(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -115,6 +120,10 @@ Bcoins=pygame.sprite.Group()
 Bcoins.add(C2)
 Treas=pygame.sprite.Group()
 Treas.add(T1)
+
+k = 1
+#Каждые 15 новых собранных коинов
+#скорость врага увеличивается на 1 единицу
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -127,13 +136,22 @@ while True:
     C2.update()
     T1.update()
     if pygame.sprite.spritecollideany(P1, coins):
-       NUM_OF_COINS+=1
+       NUM_OF_COINS += 1
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
        C1.spawn() #как только игрок тронул монету, нужно создать новую
     if pygame.sprite.spritecollideany(P1, Bcoins):
-       NUM_OF_COINS+=5
+       NUM_OF_COINS += 5
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
        C2.spawn()
     if pygame.sprite.spritecollideany(P1, Treas):
-       NUM_OF_COINS+=10
+       NUM_OF_COINS += 10
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
        T1.spawn() 
     if pygame.sprite.spritecollideany(P1, enemies):
         pygame.quit()
